@@ -1,6 +1,6 @@
 env: local
 http:
-  port: 8000
+  port: 8888
 security:
   api_sign:
     app_key: 123456
