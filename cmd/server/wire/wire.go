@@ -4,12 +4,13 @@
 package wire
 
 import (
+	"ogimg/internal/handler"
+	"ogimg/internal/repository"
+	"ogimg/internal/server"
+	"ogimg/internal/service"
+	"ogimg/pkg/log"
+
 	"github.com/gin-gonic/gin"
-	"ogpic/internal/handler"
-	"ogpic/internal/repository"
-	"ogpic/internal/server"
-	"ogpic/internal/service"
-	"ogpic/pkg/log"
 	"github.com/google/wire"
 	"github.com/spf13/viper"
 )

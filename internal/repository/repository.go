@@ -2,7 +2,7 @@ package repository
 
 import (
 	"context"
-	"ogpic/pkg/log"
+	"ogimg/pkg/log"
 
 	"github.com/go-redis/redis/v8"
 	"github.com/spf13/viper"

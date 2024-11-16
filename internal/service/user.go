@@ -1,8 +1,8 @@
 package service
 
 import (
-	"ogpic/internal/model"
-	"ogpic/internal/repository"
+	"ogimg/internal/model"
+	"ogimg/internal/repository"
 )
 
 type UserService interface {

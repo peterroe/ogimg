@@ -1,7 +1,7 @@
 package handler
 
 import (
-	"ogpic/pkg/log"
+	"ogimg/pkg/log"
 )
 
 type Handler struct {

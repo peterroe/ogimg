@@ -2,10 +2,11 @@ package main
 
 import (
 	"fmt"
-	"ogpic/cmd/server/wire"
-	"ogpic/pkg/config"
-	"ogpic/pkg/http"
-	"ogpic/pkg/log"
+	"ogimg/cmd/server/wire"
+	"ogimg/pkg/config"
+	"ogimg/pkg/http"
+	"ogimg/pkg/log"
+
 	"go.uber.org/zap"
 )
 

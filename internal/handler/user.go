@@ -1,11 +1,12 @@
 package handler
 
 import (
-	"github.com/gin-gonic/gin"
-	"ogpic/internal/service"
-	"ogpic/pkg/helper/resp"
-	"go.uber.org/zap"
 	"net/http"
+	"ogimg/internal/service"
+	"ogimg/pkg/helper/resp"
+
+	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
 )
 
 func NewUserHandler(handler *Handler,

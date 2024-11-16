@@ -1,7 +1,7 @@
 package repository
 
 import (
-	"ogpic/internal/model"
+	"ogimg/internal/model"
 )
 
 type UserRepository interface {

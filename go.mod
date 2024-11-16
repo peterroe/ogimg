@@ -1,4 +1,4 @@
-module ogpic
+module ogimg
 
 go 1.16
 

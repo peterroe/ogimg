@@ -1,6 +1,6 @@
 package service
 
-import "ogpic/pkg/log"
+import "ogimg/pkg/log"
 
 type Service struct {
 	logger *log.Logger

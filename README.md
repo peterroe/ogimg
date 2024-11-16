@@ -4,11 +4,11 @@ A simple OG image capture service.
 
 ## Usage
 
-`https://og-image.peterroe.me/?url=<encoded_url>`
+`https://og-image.peterroe.me?url=<encoded_url>`
 
 Sample:
 
-https://og-image.peterroe.me/?url=https%3A%2F%2Fdev.peterroe.me
+https://og-image.peterroe.me?url=https%3A%2F%2Fdev.peterroe.me
 
 ## Self-host
 

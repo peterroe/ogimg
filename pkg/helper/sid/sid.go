@@ -1,7 +1,8 @@
 package sid
 
 import (
-	"ogpic/pkg/helper/convert"
+	"ogimg/pkg/helper/convert"
+
 	"github.com/pkg/errors"
 	"github.com/sony/sonyflake"
 )
