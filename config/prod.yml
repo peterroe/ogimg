@@ -1,6 +1,6 @@
-env: local
+env: prod
 http:
-  port: 8000
+  port: 8888
 security:
   api_sign:
     app_key: 123456
@@ -16,6 +16,7 @@ data:
     db: 0
     read_timeout: 0.2s
     write_timeout: 0.2s
+    expire_time: 604800s # 7 天有效
 
 log:
   log_level: info

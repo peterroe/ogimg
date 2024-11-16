@@ -40,7 +40,7 @@ func (r *Repository) GetFromCache(ctx context.Context, key string) (string, erro
 
 func (r *Repository) SetToCache(ctx context.Context, key string, val string) error {
 	r.logger.Info("Set to cache", zap.String("key", key), zap.String("val", val[:10]))
-	err := r.rdb.Set(ctx, key, val, 0).Err()
+	err := r.rdb.Set(ctx, key, val, viper.GetDuration("data.redis.expire_time")).Err()
 	return err
 }
 
