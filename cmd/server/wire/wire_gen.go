@@ -23,11 +23,11 @@ func NewWire(viperViper *viper.Viper, logger *log.Logger) (*gin.Engine, func(), 
 	handlerHandler := handler.NewHandler(logger)
 	serviceService := service.NewService(logger)
 	db := repository.NewDb()
-	repositoryRepository := repository.NewRepository(logger, db)
+	repositoryRepository := repository.NewRepository(logger, db, viperViper)
 	userRepository := repository.NewUserRepository(repositoryRepository)
 	userService := service.NewUserService(serviceService, userRepository)
 	userHandler := handler.NewUserHandler(handlerHandler, userService)
-	engine := server.NewServerHTTP(logger, userHandler)
+	engine := server.NewServerHTTP(logger, userHandler, repositoryRepository)
 	return engine, func() {
 	}, nil
 }
