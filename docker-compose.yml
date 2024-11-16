@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  app:
+    image: ogimg:latest
+    ports:
+      - "8888:8888"  # 映射容器的 8080 端口到主机的 8080 端口
+    environment:
+      - APP_CONF=./config/prod.yml
+      - REDIS_ADDR=redis:6379  # 设置 Redis 地址
+    depends_on:
+      - redis  # 确保 Redis 在应用程序之前启动
+    volumes:
+      - ./config/:/app/config/  # 将主机上的配置文件挂载到容器中
+
+  redis:
+    image: "redis:alpine"  # 使用轻量级的 Redis 镜像
+    ports:
+      - "6379:6379"  # 映射容器的 6379 端口到主机的 6379 端口

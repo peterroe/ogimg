@@ -1,0 +1,18 @@
+# 忽略构建目录
+build/
+dist/
+
+# 忽略临时文件
+*.tmp
+*.log
+
+# 忽略版本控制文件
+.git
+.gitignore
+
+# 忽略文档
+README.md
+docs/
+
+# 忽略测试文件
+*_test.go
