@@ -11,7 +11,7 @@ data:
   mysql:
     user: root:123456@tcp(127.0.0.1:3380)/user?charset=utf8mb4&parseTime=True&loc=Local
   redis:
-    addr: redis:6379
+    addr: redis:6380
     password: ""
     db: 0
     read_timeout: 0.2s
