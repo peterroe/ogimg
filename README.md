@@ -1,14 +1,16 @@
 ## OGIMG
 
-A simple OG image capture service.
+A simple OG image capture service(cache with redis).
 
 ## Usage
 
 `https://ogimg.peterroe.me?url=<encoded_url>`
 
-Sample:
+A few examples:
 
-https://ogimg.peterroe.me?url=https%3A%2F%2Fgithub.com
+* GitHub: https://ogimg.peterroe.me?url=https%3A%2F%2Fgithub.com
+* YouTube: https://ogimg.peterroe.me/?url=https%3A%2F%2Fyoutube.com
+* Instagram: https://ogimg.peterroe.me/?url=https%3A%2F%2Finstagram.com
 
 ## Self-host
 
