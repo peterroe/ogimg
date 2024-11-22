@@ -1,7 +1,13 @@
+run:
+	nunu run
+
 start:
 	docker compose -f docker-compose.dev.yml up
 
-server:
+build:
+	docker compose -f docker-compose.dev.yml build
+
+serve:
 	docker compose -f docker-compose.dev.yml up -d
 
 publish:

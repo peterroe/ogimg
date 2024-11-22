@@ -1,7 +1,6 @@
 package server
 
 import (
-	"encoding/base64"
 	"fmt"
 	"io"
 	"net/http"
@@ -72,10 +71,10 @@ func findOGImage(n *html.Node) string {
 // 封装处理图像请求的逻辑
 func handleImageRequest(ctx *gin.Context, userUrl string, repo *repository.Repository, logger *log.Logger) error {
 	// 检查缓存
-	cachedBase64Val, err := repo.GetFromCache(ctx, userUrl)
-	if err == nil && cachedBase64Val != "" {
-		// 把 base64 的字符串转为图片返回
-		return sendImageFromBase64(ctx, cachedBase64Val)
+	imageBytes, err := repo.GetFromCache(ctx, userUrl)
+	if err == nil && imageBytes != nil {
+		// 把 bytes 转为图片返回
+		return sendImageFromBytes(ctx, imageBytes)
 	}
 
 	// 获取 HTML 内容
@@ -99,13 +98,11 @@ func handleImageRequest(ctx *gin.Context, userUrl string, repo *repository.Repos
 	return fetchAndCacheImage(ctx, ogImageUrl, userUrl, repo, logger)
 }
 
-// 从 base64 字符串发送图像
-func sendImageFromBase64(ctx *gin.Context, base64Val string) error {
-	decoded, err := base64.StdEncoding.DecodeString(base64Val)
-	if err != nil {
-		return fmt.Errorf("failed to decode base64: %v", err)
-	}
-	ctx.Data(http.StatusOK, "image/jpeg", decoded)
+// 从 bytes 发送图像
+func sendImageFromBytes(ctx *gin.Context, imageBytes []byte) error {
+	// 从 imageBytes 读取图片的类型
+	contentType := http.DetectContentType(imageBytes)
+	ctx.Data(http.StatusOK, contentType, imageBytes)
 	return nil
 }
 
@@ -122,9 +119,8 @@ func fetchAndCacheImage(ctx *gin.Context, ogImageUrl, userUrl string, repo *repo
 		return err
 	}
 
-	// body 转为 base64 的字符串
-	base64Val := base64.StdEncoding.EncodeToString(body)
-	err = repo.SetToCache(ctx, userUrl, base64Val)
+	// 缓存 bytes
+	err = repo.SetToCache(ctx, userUrl, body)
 	if err != nil {
 		logger.Error("Set cache error", zap.Error(err))
 	}

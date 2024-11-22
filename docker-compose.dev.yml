@@ -13,4 +13,4 @@ services:
       - ./config/:/app/config/
 
   og-redis:
-    image: "redis:alpine"
+    image: redis:alpine
