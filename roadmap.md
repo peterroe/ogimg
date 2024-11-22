@@ -1,6 +1,6 @@
 ## Roadmap
 
-https://og-image.peterroe.me/
+https://ogimg.peterroe.me/
 
 - [x] ?url=
 - [ ] Generate default template
