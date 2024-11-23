@@ -26,8 +26,10 @@ func NewWire(viperViper *viper.Viper, logger *log.Logger) (*gin.Engine, func(), 
 	repositoryRepository := repository.NewRepository(logger, db, viperViper)
 	userRepository := repository.NewUserRepository(repositoryRepository)
 	userService := service.NewUserService(serviceService, userRepository)
+	imageService := service.NewImageService(serviceService, repositoryRepository)
+	imageHandler := handler.NewImageHandler(handlerHandler, imageService)
 	userHandler := handler.NewUserHandler(handlerHandler, userService)
-	engine := server.NewServerHTTP(logger, userHandler, repositoryRepository)
+	engine := server.NewServerHTTP(logger, userHandler, imageHandler)
 	return engine, func() {
 	}, nil
 }
