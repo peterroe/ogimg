@@ -1,3 +1,5 @@
+ARG CACHEBUST=1
+
 FROM golang:1.23.3 AS builder
 
 WORKDIR /app
