@@ -40,12 +40,7 @@ func (r *Repository) GetWebsiteOgImgFromCache(ctx context.Context, url string) (
 	r.logger.Info("Get from cache", zap.String("ogimg:url", url))
 	ogImgKey := "ogimg:" + url
 	val, err := r.rdb.Get(ctx, ogImgKey).Bytes()
-	if err == redis.Nil {
-		return nil, nil
-	} else if err != nil {
-		return nil, err
-	}
-	return val, nil
+	return val, err
 }
 
 func (r *Repository) SetWebSiteDescToCache(ctx context.Context, url string, val model.WebSiteDescType) error {
