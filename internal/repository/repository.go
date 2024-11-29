@@ -27,7 +27,13 @@ func NewRepository(logger *log.Logger, db *gorm.DB, conf *viper.Viper) *Reposito
 	}
 }
 
-func (r *Repository) GetFromCache(ctx context.Context, key string) ([]byte, error) {
+func (r *Repository) SetWebsiteDescToCache(ctx context.Context, key string, val []byte) error {
+	r.logger.Info("Set to cache", zap.String("key", key), zap.Int("val_size", len(val)))
+	err := r.rdb.Set(ctx, key, val, viper.GetDuration("data.redis.expire_time")).Err()
+	return err
+}
+
+func (r *Repository) GetWebsiteDescFromCache(ctx context.Context, key string) ([]byte, error) {
 	r.logger.Info("Get from cache", zap.String("key", key))
 	val, err := r.rdb.Get(ctx, key).Bytes()
 	if err == redis.Nil {
@@ -36,12 +42,6 @@ func (r *Repository) GetFromCache(ctx context.Context, key string) ([]byte, erro
 		return nil, err
 	}
 	return val, nil
-}
-
-func (r *Repository) SetToCache(ctx context.Context, key string, val []byte) error {
-	r.logger.Info("Set to cache", zap.String("key", key), zap.Int("val_size", len(val)))
-	err := r.rdb.Set(ctx, key, val, viper.GetDuration("data.redis.expire_time")).Err()
-	return err
 }
 
 func NewDb() *gorm.DB {

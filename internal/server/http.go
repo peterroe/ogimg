@@ -7,7 +7,6 @@ import (
 	"ogimg/internal/handler"
 	"ogimg/internal/middleware"
 	"ogimg/internal/repository"
-	"ogimg/pkg/helper/resp"
 	"ogimg/pkg/log"
 
 	"github.com/gin-gonic/gin"
@@ -18,26 +17,14 @@ import (
 func NewServerHTTP(
 	logger *log.Logger,
 	userHandler *handler.UserHandler,
-	repo *repository.Repository,
+	imageHandler *handler.ImageHandler,
 ) *gin.Engine {
 	gin.SetMode(gin.ReleaseMode)
 	r := gin.Default()
 	r.Use(
 		middleware.CORSMiddleware(),
 	)
-	r.GET("/", func(ctx *gin.Context) {
-		userUrl := ctx.Query("url")
-		if userUrl == "" {
-			resp.HandleError(ctx, http.StatusBadRequest, 1, "Url is required", nil)
-			return
-		}
-
-		// Try to get image from cache
-		if err := handleImageRequest(ctx, userUrl, repo, logger); err != nil {
-			resp.HandleError(ctx, http.StatusInternalServerError, 1, err.Error(), nil)
-		}
-
-	})
+	r.GET("/", imageHandler.GetOgImageByUrl)
 	r.GET("/user", userHandler.GetUserById)
 
 	return r
@@ -71,7 +58,7 @@ func findOGImage(n *html.Node) string {
 // 封装处理图像请求的逻辑
 func handleImageRequest(ctx *gin.Context, userUrl string, repo *repository.Repository, logger *log.Logger) error {
 	// 检查缓存
-	imageBytes, err := repo.GetFromCache(ctx, userUrl)
+	imageBytes, err := repo.GetWebsiteDescFromCache(ctx, userUrl)
 	if err == nil && imageBytes != nil {
 		// 把 bytes 转为图片返回
 		return sendImageFromBytes(ctx, imageBytes)
@@ -120,7 +107,7 @@ func fetchAndCacheImage(ctx *gin.Context, ogImageUrl, userUrl string, repo *repo
 	}
 
 	// 缓存 bytes
-	err = repo.SetToCache(ctx, userUrl, body)
+	err = repo.SetWebsiteDescToCache(ctx, userUrl, body)
 	if err != nil {
 		logger.Error("Set cache error", zap.Error(err))
 	}

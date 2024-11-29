@@ -26,11 +26,13 @@ var RepositorySet = wire.NewSet(
 var ServiceSet = wire.NewSet(
 	service.NewService,
 	service.NewUserService,
+	service.NewImageService,
 )
 
 var HandlerSet = wire.NewSet(
 	handler.NewHandler,
 	handler.NewUserHandler,
+	handler.NewImageHandler,
 )
 
 func NewWire(*viper.Viper, *log.Logger) (*gin.Engine, func(), error) {
