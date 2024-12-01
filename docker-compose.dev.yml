@@ -6,7 +6,7 @@ services:
     ports:
       - "8888:8888"
     environment:
-      - APP_CONF=./config/prod.yml
+      - APP_CONF=./config/local.yml
     depends_on:
       - og-redis
     volumes:

@@ -16,6 +16,7 @@ import (
 
 type ImageService interface {
 	GetOgImageByUrl(ctx *gin.Context, userUrl string) error
+	GetOgDescByUrl(ctx *gin.Context, userUrl string) error
 }
 
 type imageService struct {
@@ -56,6 +57,32 @@ func (s *imageService) GetOgImageByUrl(ctx *gin.Context, userUrl string) error {
 	if ogImageUrl == "" {
 		return fmt.Errorf("no og:image found")
 	}
+
+	// 获取图像
+	return fetchAndCacheImage(ctx, ogImageUrl, userUrl, s.repository, s.service.logger)
+}
+
+func (s *imageService) GetOgDescByUrl(ctx *gin.Context, userUrl string) error {
+	// 检查缓存
+	descFromCache, err := s.repository.GetWebSiteDescToCache(ctx, userUrl)
+	fmt.Println("descFromCache", descFromCache)
+	if err == nil && descFromCache != (model.WebSiteDescType{}) {
+		// 把 bytes 转为图片返回
+		ctx.JSON(http.StatusOK, descFromCache)
+		return nil
+	}
+
+	urlResp, err := http.Get(userUrl)
+	if err != nil {
+		return err
+	}
+	defer urlResp.Body.Close()
+
+	doc, err := html.Parse(urlResp.Body)
+	if err != nil {
+		return err
+	}
+
 	desc := model.WebSiteDescType{}
 	findWebSiteDesc(doc, &desc)
 
@@ -66,10 +93,17 @@ func (s *imageService) GetOgImageByUrl(ctx *gin.Context, userUrl string) error {
 		userUrl = strings.TrimRight(userUrl, "/")
 		desc.Logo = fmt.Sprintf("%s%s", userUrl, desc.Logo)
 	}
+
 	s.service.logger.Info("desc", zap.Any("desc", desc))
 
-	// 获取图像
-	return fetchAndCacheImage(ctx, ogImageUrl, userUrl, s.repository, s.service.logger)
+	err = s.repository.SetWebSiteDescToCache(ctx, userUrl, desc)
+	if err != nil {
+		return err
+	}
+
+	ctx.JSON(http.StatusOK, desc)
+
+	return nil
 }
 
 // 获取图像并缓存
@@ -121,40 +155,59 @@ func findOGImage(n *html.Node) string {
 }
 
 func findWebSiteDesc(n *html.Node, desc *model.WebSiteDescType) {
-	if n.Type == html.ElementNode && n.Data == "meta" {
-		var content string
-		var isDescription bool
-		for _, attr := range n.Attr {
-			if attr.Key == "name" && attr.Val == "description" {
-				isDescription = true
-			}
-			if attr.Key == "content" {
-				content = attr.Val
-			}
-
+	// 找到 head 标签并遍历里面的内容
+	var headNode *html.Node
+	var findHead func(*html.Node) *html.Node
+	findHead = func(n *html.Node) *html.Node {
+		if n.Type == html.ElementNode && n.Data == "head" {
+			return n
 		}
-		if isDescription {
-			desc.Description = content
+		for c := n.FirstChild; c != nil; c = c.NextSibling {
+			if result := findHead(c); result != nil {
+				return result
+			}
 		}
+		return nil
 	}
-
-	if n.Type == html.ElementNode && n.Data == "link" {
-		var content string
-		var isIcon bool
-		for _, attr := range n.Attr {
-			if attr.Key == "rel" && attr.Val == "icon" {
-				isIcon = true
-			}
-			if attr.Key == "href" {
-				content = attr.Val
+	headNode = findHead(n)
+	if headNode != nil {
+		for c := headNode.FirstChild; c != nil; c = c.NextSibling {
+			if c.Type == html.ElementNode {
+				switch c.Data {
+				case "meta":
+					var content string
+					var isDescription bool
+					for _, attr := range c.Attr {
+						if attr.Key == "name" && attr.Val == "description" {
+							isDescription = true
+						}
+						if attr.Key == "content" {
+							content = attr.Val
+						}
+					}
+					if isDescription {
+						desc.Description = content
+					}
+				case "link":
+					var content string
+					var isIcon bool
+					for _, attr := range c.Attr {
+						if attr.Key == "rel" && attr.Val == "icon" {
+							isIcon = true
+						}
+						if attr.Key == "href" {
+							content = attr.Val
+						}
+					}
+					if isIcon && content != "" {
+						desc.Logo = content
+					}
+				case "title":
+					if c.FirstChild != nil {
+						desc.Title = c.FirstChild.Data
+					}
+				}
 			}
 		}
-		if isIcon && content != "" {
-			desc.Logo = content
-		}
-	}
-
-	for c := n.FirstChild; c != nil; c = c.NextSibling {
-		findWebSiteDesc(c, desc)
 	}
 }

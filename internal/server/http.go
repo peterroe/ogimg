@@ -19,6 +19,7 @@ func NewServerHTTP(
 		middleware.CORSMiddleware(),
 	)
 	r.GET("/", imageHandler.GetOgImageByUrl)
+	r.GET("/desc", imageHandler.GetOgDescByUrl)
 	r.GET("/user", userHandler.GetUserById)
 
 	return r

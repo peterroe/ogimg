@@ -32,3 +32,16 @@ func (h *ImageHandler) GetOgImageByUrl(ctx *gin.Context) {
 		return
 	}
 }
+
+func (h *ImageHandler) GetOgDescByUrl(ctx *gin.Context) {
+	userUrl := ctx.Query("url")
+	if userUrl == "" {
+		resp.HandleError(ctx, http.StatusBadRequest, 1, "Url is required", nil)
+		return
+	}
+
+	if err := h.imageService.GetOgDescByUrl(ctx, userUrl); err != nil {
+		resp.HandleError(ctx, http.StatusInternalServerError, 1, err.Error(), nil)
+		return
+	}
+}
