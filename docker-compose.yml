@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   app:
-    image: docker.io/peterroe/ogimg:latest
+    image: peterroe/ogimg:latest
     ports:
       - "8888:8888"
     environment:
