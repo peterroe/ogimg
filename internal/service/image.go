@@ -53,7 +53,7 @@ func (s *imageService) GetOgImageByUrl(ctx *gin.Context, userUrl string) error {
 		return err
 	}
 
-	ogImageUrl := findOGImage(doc)
+	ogImageUrl := findMetaContent(doc, "og:image")
 	if ogImageUrl == "" {
 		return fmt.Errorf("no og:image found")
 	}
@@ -66,7 +66,7 @@ func (s *imageService) GetOgDescByUrl(ctx *gin.Context, userUrl string) error {
 	// 检查缓存
 	descFromCache, err := s.repository.GetWebSiteDescToCache(ctx, userUrl)
 	fmt.Println("descFromCache", descFromCache)
-	if err == nil && descFromCache != (model.WebSiteDescType{}) {
+	if err == nil && descFromCache != (model.WebsiteDescType{}) {
 		// 把 bytes 转为图片返回
 		ctx.JSON(http.StatusOK, descFromCache)
 		return nil
@@ -83,7 +83,7 @@ func (s *imageService) GetOgDescByUrl(ctx *gin.Context, userUrl string) error {
 		return err
 	}
 
-	desc := model.WebSiteDescType{}
+	desc := model.WebsiteDescType{}
 	findWebSiteDesc(doc, &desc)
 
 	// 如果 logo 以 / 开头，则认为是相对路径，需要拼接上域名
@@ -129,7 +129,7 @@ func fetchAndCacheImage(ctx *gin.Context, ogImageUrl, userUrl string, repo *repo
 	return nil
 }
 
-func findOGImage(n *html.Node) string {
+func findMetaContent(n *html.Node, propertyValue string) string {
 	if n.Type == html.ElementNode && n.Data == "meta" {
 		var property, content string
 		for _, attr := range n.Attr {
@@ -139,14 +139,14 @@ func findOGImage(n *html.Node) string {
 			if attr.Key == "content" {
 				content = attr.Val
 			}
-			if property == "og:image" && content != "" {
+			if property == propertyValue && content != "" {
 				return content
 			}
 		}
 	}
 
 	for c := n.FirstChild; c != nil; c = c.NextSibling {
-		result := findOGImage(c)
+		result := findMetaContent(c, propertyValue)
 		if result != "" {
 			return result
 		}
@@ -154,7 +154,7 @@ func findOGImage(n *html.Node) string {
 	return ""
 }
 
-func findWebSiteDesc(n *html.Node, desc *model.WebSiteDescType) {
+func findWebSiteDesc(n *html.Node, desc *model.WebsiteDescType) {
 	// 找到 head 标签并遍历里面的内容
 	var headNode *html.Node
 	var findHead func(*html.Node) *html.Node
@@ -175,32 +175,41 @@ func findWebSiteDesc(n *html.Node, desc *model.WebSiteDescType) {
 			if c.Type == html.ElementNode {
 				switch c.Data {
 				case "meta":
-					var content string
 					var isDescription bool
+
 					for _, attr := range c.Attr {
-						if attr.Key == "name" && attr.Val == "description" {
+						if (attr.Key == "name" && attr.Val == "description") ||
+							(attr.Key == "property" && attr.Val == "og:description") {
 							isDescription = true
-						}
-						if attr.Key == "content" {
-							content = attr.Val
+							break
 						}
 					}
+
 					if isDescription {
-						desc.Description = content
+						for _, attr := range c.Attr {
+							if attr.Key == "content" {
+								desc.Description = attr.Val
+								break
+							}
+						}
 					}
 				case "link":
-					var content string
 					var isIcon bool
+
 					for _, attr := range c.Attr {
 						if attr.Key == "rel" && attr.Val == "icon" {
 							isIcon = true
-						}
-						if attr.Key == "href" {
-							content = attr.Val
+							break
 						}
 					}
-					if isIcon && content != "" {
-						desc.Logo = content
+
+					if isIcon {
+						for _, attr := range c.Attr {
+							if attr.Key == "href" {
+								desc.Logo = attr.Val
+								break
+							}
+						}
 					}
 				case "title":
 					if c.FirstChild != nil {

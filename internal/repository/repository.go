@@ -43,7 +43,7 @@ func (r *Repository) GetWebsiteOgImgFromCache(ctx context.Context, url string) (
 	return val, err
 }
 
-func (r *Repository) SetWebSiteDescToCache(ctx context.Context, url string, val model.WebSiteDescType) error {
+func (r *Repository) SetWebSiteDescToCache(ctx context.Context, url string, val model.WebsiteDescType) error {
 	r.logger.Info("Get from cache", zap.String("url", url))
 	descKey := "desc:" + url
 	jsonVal, err := json.Marshal(val)
@@ -54,19 +54,19 @@ func (r *Repository) SetWebSiteDescToCache(ctx context.Context, url string, val 
 	return err
 }
 
-func (r *Repository) GetWebSiteDescToCache(ctx context.Context, url string) (model.WebSiteDescType, error) {
+func (r *Repository) GetWebSiteDescToCache(ctx context.Context, url string) (model.WebsiteDescType, error) {
 	r.logger.Info("Get from cache", zap.String("desc:url", url))
 	desKey := "desc:" + url
 	val, err := r.rdb.Get(ctx, desKey).Result()
 	if err == redis.Nil {
-		return model.WebSiteDescType{}, nil
+		return model.WebsiteDescType{}, nil
 	} else if err != nil {
-		return model.WebSiteDescType{}, err
+		return model.WebsiteDescType{}, err
 	}
-	var desc model.WebSiteDescType
+	var desc model.WebsiteDescType
 	err = json.Unmarshal([]byte(val), &desc)
 	if err != nil {
-		return model.WebSiteDescType{}, err
+		return model.WebsiteDescType{}, err
 	}
 	return desc, nil
 }

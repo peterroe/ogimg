@@ -1,7 +1,7 @@
 package model
 
-type WebSiteDescType struct {
-	Title       string
-	Description string
-	Logo        string
+type WebsiteDescType struct {
+	Title       string `json:"title"`
+	Description string `json:"description"`
+	Logo        string `json:"logo"`
 }
